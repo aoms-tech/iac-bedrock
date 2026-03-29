@@ -1,11 +1,13 @@
 module "observability" {
   source = "./modules/observability"
 
-  name_prefix    = local.name_prefix
-  aws_region     = var.aws_region
-  project_name   = var.project_name
-  environment    = var.environment
-  log_bucket_sse = true
+  name_prefix      = local.name_prefix
+  aws_region       = var.aws_region
+  project_name     = var.project_name
+  environment      = var.environment
+  log_bucket_sse   = true
+  log_group_name   = "/aws/bedrock/model-invocations"
+  create_dashboard = true
 }
 
 module "bedrock" {

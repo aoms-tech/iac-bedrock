@@ -38,3 +38,8 @@ output "vpc_endpoint_ids" {
   description = "Interface endpoint IDs when PrivateLink is enabled."
   value       = try(module.networking[0].vpc_endpoint_ids, {})
 }
+
+output "cloudwatch_dashboard_name" {
+  description = "CloudWatch dashboard name for Bedrock observability (cost trend, usage by model, usage by user)."
+  value       = module.observability.dashboard_name
+}
