@@ -2,10 +2,16 @@ ENV ?= dev
 PROFILE ?= bedrock-workload
 TF := AWS_PROFILE=$(PROFILE) terraform
 
-.PHONY: init plan apply destroy workspace-list
+.PHONY: init workspace-new workspace-list plan apply destroy
 
 init:
 	$(TF) init -backend-config=backend.hcl
+
+workspace-new:
+	$(TF) workspace new $(ENV)
+
+workspace-list:
+	$(TF) workspace list
 
 plan:
 	$(TF) workspace select $(ENV)
@@ -18,6 +24,3 @@ apply:
 destroy:
 	$(TF) workspace select $(ENV)
 	$(TF) destroy -var-file=environments/$(ENV)/terraform.tfvars
-
-workspace-list:
-	$(TF) workspace list
