@@ -35,9 +35,11 @@ For **Claude Code** and **Cursor** on Brickeye Bedrock, see [INSTRUCTIONS.md](./
 - permissions to create IAM, S3, CloudWatch, and Bedrock resources
 - **Terraform state backend bootstrapped** (one-time setup)
 
-## One-Time: Bootstrap Terraform State Backend
+## One-Time: Bootstrap Terraform State Backend (Platform team only)
 
-Before running `terraform apply`, bootstrap the remote state backend once per AWS account:
+**Responsibility: Platform or DevOps engineer — run once per AWS account.**
+
+Before the first `terraform apply` in an AWS account, bootstrap the remote state backend:
 
 ```bash
 AWS_PROFILE=bedrock-workload ./scripts/bootstrap-state.sh
@@ -47,15 +49,9 @@ This creates:
 - S3 bucket `brickeye-tfstate-bedrock` with versioning, encryption, and public access blocked
 - DynamoDB table `brickeye-tfstate-locks` for state locking
 
-The state backend configuration is defined in `backend.tf`. After bootstrapping, run:
+**After bootstrap is complete, all other engineers skip the bootstrap script and proceed directly to `terraform init`.**
 
-```bash
-terraform init
-```
-
-If you have existing local state from a previous run, Terraform will offer to migrate it to S3. Accept the migration to avoid starting from a clean state.
-
-## Quick Start
+## Quick Start (All engineers)
 
 ```bash
 cd /Users/richard/Repo/iac-bedrock
@@ -65,6 +61,8 @@ AWS_PROFILE=bedrock-workload terraform init
 AWS_PROFILE=bedrock-workload terraform plan
 AWS_PROFILE=bedrock-workload terraform apply
 ```
+
+The `terraform init` command automatically connects to the shared S3 backend created during bootstrap. No additional setup needed.
 
 ## Configure Variables
 
