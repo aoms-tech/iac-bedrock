@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# bootstrap-state.sh — creates the S3 state bucket + DynamoDB lock table.
+# bootstrap-state.sh — creates the S3 state bucket.
 # Run once per AWS account before `terraform init`.
+# Locking uses S3 native lock files (use_lockfile = true) — no DynamoDB needed.
 #
 # Usage:
 #   AWS_PROFILE=bedrock-workload ./scripts/bootstrap-state.sh <region> <account_id>
@@ -15,13 +16,11 @@ REGION="${1:?Usage: $0 <region> <account_id>}"
 ACCOUNT_ID="${2:?Usage: $0 <region> <account_id>}"
 
 BUCKET_NAME="brickeye-terraform-state-${ACCOUNT_ID}"
-TABLE_NAME="brickeye-terraform-locks"
 
 echo "==> Bootstrapping Terraform state backend"
-echo "    Region:   ${REGION}"
-echo "    Account:  ${ACCOUNT_ID}"
-echo "    Bucket:   ${BUCKET_NAME}"
-echo "    DynamoDB: ${TABLE_NAME}"
+echo "    Region:  ${REGION}"
+echo "    Account: ${ACCOUNT_ID}"
+echo "    Bucket:  ${BUCKET_NAME}"
 echo ""
 
 # --- S3 bucket ---
@@ -63,30 +62,8 @@ aws s3api put-public-access-block \
   --public-access-block-configuration \
     BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
 
-# --- DynamoDB lock table ---
-if aws dynamodb describe-table \
-     --table-name "${TABLE_NAME}" \
-     --region "${REGION}" \
-     --query 'Table.TableStatus' \
-     --output text 2>/dev/null | grep -qE "^ACTIVE$"; then
-  echo "    [skip] DynamoDB table already exists: ${TABLE_NAME}"
-else
-  echo "==> Creating DynamoDB lock table: ${TABLE_NAME}"
-  aws dynamodb create-table \
-    --table-name "${TABLE_NAME}" \
-    --attribute-definitions AttributeName=LockID,AttributeType=S \
-    --key-schema AttributeName=LockID,KeyType=HASH \
-    --billing-mode PAY_PER_REQUEST \
-    --region "${REGION}"
-
-  echo "==> Waiting for table to become ACTIVE..."
-  aws dynamodb wait table-exists \
-    --table-name "${TABLE_NAME}" \
-    --region "${REGION}"
-fi
-
 echo ""
 echo "Bootstrap complete. Next steps:"
-echo "  1. Update environments/<env>/backend.hcl: set bucket = \"${BUCKET_NAME}\""
-echo "  2. terraform init -backend-config=environments/<env>/backend.hcl \\"
-echo "       -var-file=environments/<env>/terraform.tfvars"
+echo "  1. Update backend.hcl: set bucket = \"${BUCKET_NAME}\""
+echo "  2. make init"
+echo "  3. terraform workspace new dev && terraform workspace new prod"
