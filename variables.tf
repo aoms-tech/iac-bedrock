@@ -117,3 +117,9 @@ variable "allow_account_root_trust_principal" {
     error_message = "Set at least one team_role_trust_principals value, or explicitly allow account root trust."
   }
 }
+
+variable "manage_logging_config" {
+  description = "Controls whether this stack owns aws_bedrock_model_invocation_logging_configuration. Set false in secondary stacks sharing the same account/region as a primary stack."
+  type        = bool
+  default     = true
+}

@@ -1,0 +1,38 @@
+# Copy to terraform.tfvars (gitignored) and fill in real values before applying.
+# Run: terraform init -backend-config=environments/prod/backend.hcl -var-file=environments/prod/terraform.tfvars
+
+aws_region   = "us-east-1"
+environment  = "prod"
+project_name = "brickeye-bedrock"
+
+# REQUIRED: account root trust is disabled for production.
+# Replace with actual SSO role ARNs for your org.
+allow_account_root_trust_principal = false
+team_role_trust_principals = [
+  # "arn:aws:iam::<ACCOUNT_ID>:role/AWSReservedSSO_Administrator_<HASH>",
+]
+
+# Prod owns the account-level Bedrock logging singleton.
+# Set to false only if another stack in this account/region already owns it.
+manage_logging_config = true
+
+# Guardrail recommended in production.
+# enable_guardrail = true
+
+# PrivateLink strongly recommended in production.
+# enable_bedrock_private_endpoints = true
+# vpc_id             = "vpc-xxxxxxxx"
+# private_subnet_ids = ["subnet-aaa", "subnet-bbb"]
+# endpoint_allowed_principal_arns = [
+#   "arn:aws:iam::<ACCOUNT_ID>:role/AWSReservedSSO_Administrator_<HASH>",
+# ]
+
+# Optional: constrain allowed models to exactly what prod uses.
+# model_invoke_resource_arns = [
+#   "arn:aws:bedrock:us-east-1::inference-profile/us.anthropic.claude-sonnet-4-6",
+# ]
+
+tags = {
+  Team        = "platform"
+  Environment = "prod"
+}

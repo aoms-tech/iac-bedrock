@@ -46,3 +46,9 @@ variable "cloudwatch_kms_key_arn" {
   description = "KMS key ARN for encrypting CloudWatch Bedrock invocation logs."
   type        = string
 }
+
+variable "manage_logging_config" {
+  description = "Set false on secondary stacks sharing the same account/region to skip owning aws_bedrock_model_invocation_logging_configuration. Only one stack per account/region should own this singleton."
+  type        = bool
+  default     = true
+}

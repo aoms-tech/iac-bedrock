@@ -6,7 +6,7 @@ module "observability" {
   project_name     = var.project_name
   environment      = var.environment
   log_bucket_sse   = true
-  log_group_name   = "/aws/bedrock/model-invocations"
+  log_group_name   = local.bedrock_log_group
   create_dashboard = true
 }
 
@@ -21,8 +21,9 @@ module "bedrock" {
 
   bedrock_logs_bucket_id = module.observability.bedrock_logs_bucket_id
   cloudwatch_kms_key_arn = module.observability.bedrock_logs_kms_key_arn
-  log_group_name         = "/aws/bedrock/model-invocations"
+  log_group_name         = local.bedrock_log_group
   log_key_prefix         = "model-invocations"
+  manage_logging_config  = var.manage_logging_config
 
   enable_guardrail = var.enable_guardrail
 
@@ -55,5 +56,6 @@ module "networking" {
 }
 
 locals {
-  name_prefix = "${var.project_name}-${var.environment}"
+  name_prefix       = "${var.project_name}-${var.environment}"
+  bedrock_log_group = "/aws/bedrock/model-invocations"
 }

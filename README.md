@@ -34,16 +34,57 @@ For **Claude Code** and **Cursor** on Brickeye Bedrock, see [INSTRUCTIONS.md](./
 - AWS credentials configured for the target account
 - permissions to create IAM, S3, CloudWatch, and Bedrock resources
 
-## Quick Start
+## Quick Start (Dev)
 
 ```bash
-cd /Users/richard/Repo/iac-bedrock
-cp environments/dev/terraform.tfvars.example terraform.tfvars
-# edit terraform.tfvars
-AWS_PROFILE=bedrock-workload terraform init
-AWS_PROFILE=bedrock-workload terraform plan
-AWS_PROFILE=bedrock-workload terraform apply
+# 1. Bootstrap state infrastructure (once per account)
+AWS_PROFILE=bedrock-workload ./scripts/bootstrap-state.sh us-east-1 <ACCOUNT_ID>
+
+# 2. Update environments/dev/backend.hcl with the bucket name printed above
+
+# 3. Copy and edit variables
+cp environments/dev/terraform.tfvars.example environments/dev/terraform.tfvars
+# edit environments/dev/terraform.tfvars
+
+# 4. Init, plan, apply
+AWS_PROFILE=bedrock-workload terraform init -backend-config=environments/dev/backend.hcl
+AWS_PROFILE=bedrock-workload terraform plan  -var-file=environments/dev/terraform.tfvars
+AWS_PROFILE=bedrock-workload terraform apply -var-file=environments/dev/terraform.tfvars
 ```
+
+## Multi-Environment Workflow
+
+This repo uses partial backend config (separate `.hcl` files per environment) rather than Terraform workspaces. Each environment has its own state file at a distinct S3 key, preventing cross-environment state contamination.
+
+| Environment | S3 State Key |
+|---|---|
+| dev  | `bedrock/dev/terraform.tfstate`  |
+| prod | `bedrock/prod/terraform.tfstate` |
+
+### Running prod
+
+```bash
+# Bootstrap (skip if using the same account as dev — bucket already exists)
+AWS_PROFILE=bedrock-prod ./scripts/bootstrap-state.sh us-east-1 <PROD_ACCOUNT_ID>
+
+# Update environments/prod/backend.hcl with the correct bucket and account ID
+
+cp environments/prod/terraform.tfvars.example environments/prod/terraform.tfvars
+# edit environments/prod/terraform.tfvars — fill in team_role_trust_principals
+
+AWS_PROFILE=bedrock-prod terraform init -backend-config=environments/prod/backend.hcl
+AWS_PROFILE=bedrock-prod terraform plan  -var-file=environments/prod/terraform.tfvars
+AWS_PROFILE=bedrock-prod terraform apply -var-file=environments/prod/terraform.tfvars
+```
+
+Switching environments requires a fresh `terraform init` because the backend changes.
+
+### Bedrock logging singleton (`aws_bedrock_model_invocation_logging_configuration`)
+
+Bedrock's invocation logging config is **one per AWS account per region**. Two full stacks in the same account/region would fight over it.
+
+- **Separate accounts (recommended):** both stacks set `manage_logging_config = true` independently — no conflict.
+- **Same account:** set `manage_logging_config = true` in the environment that owns the config (typically prod), and `manage_logging_config = false` in the secondary stack. Each stack still gets its own CloudWatch log group and IAM role.
 
 ## Configure Variables
 
@@ -163,12 +204,17 @@ Notes:
 ```text
 .
 ├── main.tf
+├── backend.tf
 ├── providers.tf
 ├── variables.tf
 ├── outputs.tf
 ├── versions.tf
 ├── environments/
-│   └── dev/
+│   ├── dev/
+│   │   ├── backend.hcl
+│   │   └── terraform.tfvars.example
+│   └── prod/
+│       ├── backend.hcl
 │       └── terraform.tfvars.example
 ├── modules/
 │   ├── bedrock/
@@ -176,7 +222,8 @@ Notes:
 │   ├── networking/
 │   └── observability/
 └── scripts/
-    └── bedrock-cli.sh
+    ├── bedrock-cli.sh
+    └── bootstrap-state.sh
 ```
 
 ## Future Hardening Considerations

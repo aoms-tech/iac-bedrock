@@ -65,6 +65,8 @@ resource "aws_iam_role_policy" "bedrock_logging" {
 }
 
 resource "aws_bedrock_model_invocation_logging_configuration" "main" {
+  count = var.manage_logging_config ? 1 : 0
+
   logging_config {
     text_data_delivery_enabled      = true
     image_data_delivery_enabled     = true
