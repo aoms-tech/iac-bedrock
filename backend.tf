@@ -1,13 +1,10 @@
 terraform {
   backend "s3" {
-    # All values supplied via -backend-config=environments/<env>/backend.hcl
-    # Run scripts/bootstrap-state.sh once per account before terraform init.
+    # Values supplied via -backend-config=backend.hcl (single file, all envs).
+    # Workspaces provide state isolation:
+    #   dev  → env:/dev/bedrock/terraform.tfstate
+    #   prod → env:/prod/bedrock/terraform.tfstate
     #
-    # Required at init time (set in backend.hcl):
-    #   bucket         - S3 bucket holding Terraform state
-    #   key            - path within the bucket for this env's state file
-    #   region         - AWS region of the state bucket
-    #   dynamodb_table - DynamoDB table for state locking
-    #   encrypt        - must be true
+    # Run scripts/bootstrap-state.sh once per account before terraform init.
   }
 }
