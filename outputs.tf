@@ -29,6 +29,11 @@ output "team_role_arns" {
   value       = module.iam.team_role_arns
 }
 
+output "cursor_bedrock_role_arn" {
+  description = "Cross-account IAM role for Cursor Bedrock invoke when environment is prod; null otherwise."
+  value       = module.iam.cursor_bedrock_role_arn
+}
+
 output "guardrail_id" {
   description = "Guardrail ID when enable_guardrail is true."
   value       = module.bedrock.guardrail_id

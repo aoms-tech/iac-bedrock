@@ -3,6 +3,9 @@
 *.tfstate.*
 *.tfvars
 !*.tfvars.example
+# Env tfvars are the source of truth (incl. Cursor external ID); keep repo access private.
+!environments/dev/terraform.tfvars
+!environments/prod/terraform.tfvars
 crash.log
 crash.*.log
 override.tf

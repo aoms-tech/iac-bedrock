@@ -42,6 +42,11 @@ module "iam" {
   team_role_trust_principals = var.team_role_trust_principals
   allow_account_root_trust   = var.allow_account_root_trust_principal
 
+  enable_cursor_bedrock_cross_account_role = local.enable_cursor_bedrock_cross_account_role
+  cursor_cross_account_assumer_role_arn    = var.cursor_cross_account_assumer_role_arn
+  cursor_bedrock_external_id               = var.cursor_bedrock_external_id
+  cursor_bedrock_role_name_suffix          = var.cursor_bedrock_role_name_suffix
+
   depends_on = [module.bedrock]
 }
 
@@ -59,4 +64,7 @@ module "networking" {
 locals {
   name_prefix       = "${var.project_name}-${var.environment}"
   bedrock_log_group = "/aws/bedrock/model-invocations"
+
+  # Cursor cross-account Bedrock access: created only when environment is prod.
+  enable_cursor_bedrock_cross_account_role = var.environment == "prod"
 }

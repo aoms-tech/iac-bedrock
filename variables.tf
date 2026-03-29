@@ -68,18 +68,18 @@ variable "enable_guardrail" {
 }
 
 variable "model_invoke_resource_arns" {
-  description = "Bedrock model and inference-profile ARNs for bedrock:InvokeModel / InvokeModelWithResponseStream. Adjust for your region and model IDs."
+  description = "Bedrock model and inference-profile ARNs for bedrock:InvokeModel / InvokeModelWithResponseStream. Use arn:aws:bedrock:*:*:inference-profile/... (wildcard account); system inference profile ARNs include your account ID and do not match :: (empty account)."
   type        = list(string)
   default = [
-    # Latest Anthropic Models
-    "arn:aws:bedrock:*::inference-profile/us.anthropic.claude-sonnet-4-6",
+    # Latest Anthropic Models (inference-profile ARNs require :*: account segment; foundation-model keeps ::)
+    "arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-sonnet-4-6",
     "arn:aws:bedrock:*::foundation-model/anthropic.claude-sonnet-4-6",
-    "arn:aws:bedrock:*::inference-profile/us.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-haiku-4-5-20251001-v1:0",
     "arn:aws:bedrock:*::foundation-model/anthropic.claude-haiku-4-5-20251001-v1:0",
-    "arn:aws:bedrock:*::inference-profile/us.anthropic.claude-opus-4-6-v1",
+    "arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-opus-4-6-v1",
     "arn:aws:bedrock:*::foundation-model/anthropic.claude-opus-4-6-v1",
     # DeepSeek
-    "arn:aws:bedrock:*::inference-profile/us.deepseek.r1-v1:0",
+    "arn:aws:bedrock:*:*:inference-profile/us.deepseek.r1-v1:0",
     "arn:aws:bedrock:*::foundation-model/deepseek.r1-v1:0",
     # MiniMax, Z AI GLM, Moonshot Kimi (foundation-model IDs from list-foundation-models)
     "arn:aws:bedrock:*::foundation-model/minimax.*",
@@ -128,4 +128,23 @@ variable "manage_log_group" {
   description = "Controls whether this stack creates the CloudWatch log group. Set false in secondary stacks sharing the same account/region as a primary stack."
   type        = bool
   default     = true
+}
+
+variable "cursor_cross_account_assumer_role_arn" {
+  description = "Cursor AWS account role allowed to assume the prod Cursor Bedrock IAM role (ignored when environment is not prod)."
+  type        = string
+  default     = "arn:aws:iam::289469326074:role/roleAssumer"
+}
+
+variable "cursor_bedrock_external_id" {
+  description = "External ID for the Cursor Bedrock role trust policy (recommended once Cursor provides it). Omitted from the trust policy when empty."
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "cursor_bedrock_role_name_suffix" {
+  description = "IAM role name suffix for Cursor Bedrock access; full name is {project_name}-{environment}-{suffix}."
+  type        = string
+  default     = "cursor-bedrock-access"
 }

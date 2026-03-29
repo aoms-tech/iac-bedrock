@@ -167,7 +167,7 @@ make destroy ENV=dev
 - [ ] Review `terraform plan ENV=dev` output for unintended changes
 - [ ] Update `.tfvars.example` if variables change
 - [ ] Document sensitive outputs or security implications in comments
-- [ ] Verify `.gitignore` excludes `*.tfvars` (not `*.tfvars.example`)
+- [ ] Confirm secrets stay out of git: default is ignore `*.tfvars`, with exceptions for `environments/dev/terraform.tfvars` and `environments/prod/terraform.tfvars` (source of truth; private repo only)
 
 ---
 

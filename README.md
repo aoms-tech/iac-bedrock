@@ -66,10 +66,9 @@ AWS_PROFILE=bedrock-workload terraform init -backend-config=backend.hcl
 terraform workspace new dev
 terraform workspace new prod
 
-# 5. Copy and edit variables for each env
-cp environments/dev/terraform.tfvars.example environments/dev/terraform.tfvars
-cp environments/prod/terraform.tfvars.example environments/prod/terraform.tfvars
-# edit each file
+# 5. Variables per env (committed in-repo)
+#    `environments/dev/terraform.tfvars` and `environments/prod/terraform.tfvars` are tracked.
+#    Copy from `*.tfvars.example` only if you need a local-only override (use a separate filename or git update-index --skip-worktree).
 ```
 
 ## Multi-Environment Workflow
@@ -103,7 +102,7 @@ Bedrock's invocation logging config is **one per AWS account per region**. In a 
 
 ## Configure Variables
 
-Start from `environments/dev/terraform.tfvars.example`.
+Defaults live in `environments/dev/terraform.tfvars` and `environments/prod/terraform.tfvars` (tracked). Use `*.tfvars.example` as a template when adding a new environment or a private fork.
 
 Key variables:
 

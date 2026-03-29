@@ -1,7 +1,7 @@
-# Repo tracks `environments/dev/terraform.tfvars`; copy here to customize or bootstrap a new clone.
+# Tracked in git as dev env source of truth (override locally only if needed).
 
-aws_region  = "us-east-1"
-environment = "dev"
+aws_region   = "us-east-1"
+environment  = "dev"
 project_name = "brickeye-bedrock"
 
 # Optional: constrain who can assume team IAM roles (default is account root).

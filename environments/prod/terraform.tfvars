@@ -1,5 +1,5 @@
-# Repo tracks `environments/prod/terraform.tfvars`; copy here to bootstrap or maintain a template.
-# Run: terraform init -backend-config=environments/prod/backend.hcl -var-file=environments/prod/terraform.tfvars
+# Tracked in git as prod env source of truth. Run:
+# terraform init -backend-config=environments/prod/backend.hcl -var-file=environments/prod/terraform.tfvars
 
 aws_region   = "us-east-1"
 environment  = "prod"
@@ -7,10 +7,10 @@ project_name = "brickeye-bedrock"
 
 # REQUIRED: account root trust is disabled for production.
 # Replace with actual SSO role ARNs for your org.
-allow_account_root_trust_principal = false
-team_role_trust_principals = [
-  # "arn:aws:iam::<ACCOUNT_ID>:role/AWSReservedSSO_Administrator_<HASH>",
-]
+# allow_account_root_trust_principal = false
+# team_role_trust_principals = [
+#   # "arn:aws:iam::<ACCOUNT_ID>:role/AWSReservedSSO_Administrator_<HASH>",
+# ]
 
 # Prod owns the shared logging resources (one per account/region).
 # All Bedrock invocations log to /aws/bedrock/model-invocations regardless of env.
@@ -30,15 +30,14 @@ enable_guardrail = true
 # ]
 
 # Optional: constrain allowed models to exactly what prod uses.
-# System inference profiles include your account ID in the ARN (wildcard: arn:aws:bedrock:*:*:inference-profile/...).
 # model_invoke_resource_arns = [
-#   "arn:aws:bedrock:us-east-1:<ACCOUNT_ID>:inference-profile/us.anthropic.claude-sonnet-4-6",
+#   "arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-sonnet-4-6",
 # ]
 
 # Cursor cross-account Bedrock role is created automatically when environment = "prod".
 # Trusts arn:aws:iam::289469326074:role/roleAssumer by default. After Cursor validates setup,
 # set the external ID they provide (confused-deputy protection):
-# cursor_bedrock_external_id = "your-external-id-from-cursor"
+cursor_bedrock_external_id = "cursor-906b4afe-10fe-4504-bbf0-5413dc3ef413"
 #
 # Optional overrides:
 # cursor_cross_account_assumer_role_arn = "arn:aws:iam::289469326074:role/roleAssumer"
