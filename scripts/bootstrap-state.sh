@@ -7,11 +7,18 @@ echo "Bootstrapping Terraform state backend in $REGION"
 
 # Create state bucket with versioning and encryption
 echo "Creating S3 bucket for Terraform state..."
-aws s3api create-bucket \
-  --bucket brickeye-tfstate-bedrock \
-  --region "$REGION" \
-  --create-bucket-configuration LocationConstraint="$REGION" \
-  || echo "Bucket may already exist" && true
+if [ "$REGION" = "us-east-1" ]; then
+  aws s3api create-bucket \
+    --bucket brickeye-tfstate-bedrock \
+    --region "$REGION" \
+    || echo "Bucket may already exist" && true
+else
+  aws s3api create-bucket \
+    --bucket brickeye-tfstate-bedrock \
+    --region "$REGION" \
+    --create-bucket-configuration LocationConstraint="$REGION" \
+    || echo "Bucket may already exist" && true
+fi
 
 aws s3api put-bucket-versioning \
   --bucket brickeye-tfstate-bedrock \
