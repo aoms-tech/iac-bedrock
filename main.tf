@@ -7,7 +7,7 @@ module "observability" {
   environment      = var.environment
   log_bucket_sse   = true
   log_group_name   = local.bedrock_log_group
-  create_dashboard = true
+  create_dashboard = var.environment == "prod"
 }
 
 module "bedrock" {
