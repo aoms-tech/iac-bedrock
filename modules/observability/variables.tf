@@ -25,3 +25,15 @@ variable "create_kms_key" {
   type        = bool
   default     = true
 }
+
+variable "log_group_name" {
+  description = "CloudWatch log group receiving Bedrock invocation logs. Used in Log Insights dashboard widgets."
+  type        = string
+  default     = "/aws/bedrock/model-invocations"
+}
+
+variable "create_dashboard" {
+  description = "Create a CloudWatch dashboard for Bedrock cost, usage-by-model, and usage-by-user observability."
+  type        = bool
+  default     = true
+}

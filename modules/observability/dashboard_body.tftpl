@@ -1,0 +1,209 @@
+{
+  "widgets": [
+    {
+      "type": "text",
+      "x": 0, "y": 0, "width": 24, "height": 2,
+      "properties": {
+        "markdown": "# ${project_name} / ${environment} — Bedrock Observability\nToken counts are a cost proxy — for exact spend see [AWS Cost Explorer](https://console.aws.amazon.com/cost-management/home#/). Log Insights widgets query `${log_group_name}`."
+      }
+    },
+
+    {
+      "type": "metric",
+      "x": 0, "y": 2, "width": 6, "height": 4,
+      "properties": {
+        "title": "Total Invocations",
+        "view": "singleValue",
+        "setPeriodToTimeRange": true,
+        "stat": "Sum",
+        "period": 86400,
+        "region": "${aws_region}",
+        "metrics": [["AWS/Bedrock", "Invocations"]]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 6, "y": 2, "width": 6, "height": 4,
+      "properties": {
+        "title": "Total Input Tokens",
+        "view": "singleValue",
+        "setPeriodToTimeRange": true,
+        "stat": "Sum",
+        "period": 86400,
+        "region": "${aws_region}",
+        "metrics": [["AWS/Bedrock", "InputTokenCount"]]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12, "y": 2, "width": 6, "height": 4,
+      "properties": {
+        "title": "Total Output Tokens",
+        "view": "singleValue",
+        "setPeriodToTimeRange": true,
+        "stat": "Sum",
+        "period": 86400,
+        "region": "${aws_region}",
+        "metrics": [["AWS/Bedrock", "OutputTokenCount"]]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 18, "y": 2, "width": 6, "height": 4,
+      "properties": {
+        "title": "Errors + Throttles",
+        "view": "singleValue",
+        "setPeriodToTimeRange": true,
+        "stat": "Sum",
+        "period": 86400,
+        "region": "${aws_region}",
+        "metrics": [
+          ["AWS/Bedrock", "InvocationClientErrors", {"label": "Client Errors", "color": "#ff7f0e"}],
+          ["AWS/Bedrock", "InvocationServerErrors", {"label": "Server Errors", "color": "#d62728"}],
+          ["AWS/Bedrock", "InvocationThrottles",    {"label": "Throttles",     "color": "#9467bd"}]
+        ]
+      }
+    },
+
+    {
+      "type": "metric",
+      "x": 0, "y": 6, "width": 12, "height": 6,
+      "properties": {
+        "title": "Invocations by Model",
+        "view": "timeSeries",
+        "stacked": true,
+        "period": 3600,
+        "region": "${aws_region}",
+        "metrics": [
+          [{"expression": "SEARCH('{AWS/Bedrock,ModelId} Invocations', 'Sum', 3600)", "label": "", "id": "e1"}]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12, "y": 6, "width": 12, "height": 6,
+      "properties": {
+        "title": "Avg Latency by Model (ms)",
+        "view": "timeSeries",
+        "stacked": false,
+        "period": 3600,
+        "region": "${aws_region}",
+        "metrics": [
+          [{"expression": "SEARCH('{AWS/Bedrock,ModelId} InvocationLatency', 'Average', 3600)", "label": "", "id": "e2"}]
+        ]
+      }
+    },
+
+    {
+      "type": "metric",
+      "x": 0, "y": 12, "width": 12, "height": 6,
+      "properties": {
+        "title": "Input Tokens by Model (Cost Proxy)",
+        "view": "timeSeries",
+        "stacked": true,
+        "period": 3600,
+        "region": "${aws_region}",
+        "metrics": [
+          [{"expression": "SEARCH('{AWS/Bedrock,ModelId} InputTokenCount', 'Sum', 3600)", "label": "", "id": "e3"}]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12, "y": 12, "width": 12, "height": 6,
+      "properties": {
+        "title": "Output Tokens by Model (Cost Proxy)",
+        "view": "timeSeries",
+        "stacked": true,
+        "period": 3600,
+        "region": "${aws_region}",
+        "metrics": [
+          [{"expression": "SEARCH('{AWS/Bedrock,ModelId} OutputTokenCount', 'Sum', 3600)", "label": "", "id": "e4"}]
+        ]
+      }
+    },
+
+    {
+      "type": "log",
+      "x": 0, "y": 18, "width": 24, "height": 6,
+      "properties": {
+        "title": "Cost Trend — Input + Output Tokens per Hour",
+        "region": "${aws_region}",
+        "view": "timeSeries",
+        "query": "SOURCE '${log_group_name}' | fields @timestamp, input.inputTokenCount, output.outputTokenCount | stats sum(input.inputTokenCount) as inputTokens, sum(output.outputTokenCount) as outputTokens by bin(1h)"
+      }
+    },
+
+    {
+      "type": "log",
+      "x": 0, "y": 24, "width": 12, "height": 6,
+      "properties": {
+        "title": "Top Users — Invocations",
+        "region": "${aws_region}",
+        "view": "table",
+        "query": "SOURCE '${log_group_name}' | fields identity.arn | stats count() as invocations by identity.arn | sort invocations desc | limit 20"
+      }
+    },
+    {
+      "type": "log",
+      "x": 12, "y": 24, "width": 12, "height": 6,
+      "properties": {
+        "title": "Top Users — Total Tokens",
+        "region": "${aws_region}",
+        "view": "table",
+        "query": "SOURCE '${log_group_name}' | fields identity.arn, input.inputTokenCount, output.outputTokenCount | stats sum(input.inputTokenCount) + sum(output.outputTokenCount) as totalTokens by identity.arn | sort totalTokens desc | limit 20"
+      }
+    },
+
+    {
+      "type": "log",
+      "x": 0, "y": 30, "width": 12, "height": 6,
+      "properties": {
+        "title": "Usage by Model",
+        "region": "${aws_region}",
+        "view": "table",
+        "query": "SOURCE '${log_group_name}' | fields modelId | stats count() as invocations, sum(input.inputTokenCount) as inputTokens, sum(output.outputTokenCount) as outputTokens by modelId | sort invocations desc"
+      }
+    },
+    {
+      "type": "log",
+      "x": 12, "y": 30, "width": 12, "height": 6,
+      "properties": {
+        "title": "Usage by User × Model",
+        "region": "${aws_region}",
+        "view": "table",
+        "query": "SOURCE '${log_group_name}' | fields identity.arn, modelId | stats count() as invocations, sum(input.inputTokenCount) as inputTokens, sum(output.outputTokenCount) as outputTokens by identity.arn, modelId | sort invocations desc | limit 50"
+      }
+    },
+
+    {
+      "type": "metric",
+      "x": 0, "y": 36, "width": 12, "height": 6,
+      "properties": {
+        "title": "Errors by Model",
+        "view": "timeSeries",
+        "stacked": false,
+        "period": 3600,
+        "region": "${aws_region}",
+        "metrics": [
+          [{"expression": "SEARCH('{AWS/Bedrock,ModelId} InvocationClientErrors', 'Sum', 3600)", "label": "", "id": "e5"}],
+          [{"expression": "SEARCH('{AWS/Bedrock,ModelId} InvocationServerErrors', 'Sum', 3600)", "label": "", "id": "e6"}]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12, "y": 36, "width": 12, "height": 6,
+      "properties": {
+        "title": "Throttles by Model",
+        "view": "timeSeries",
+        "stacked": false,
+        "period": 3600,
+        "region": "${aws_region}",
+        "metrics": [
+          [{"expression": "SEARCH('{AWS/Bedrock,ModelId} InvocationThrottles', 'Sum', 3600)", "label": "", "id": "e7"}]
+        ]
+      }
+    }
+  ]
+}

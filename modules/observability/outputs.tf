@@ -9,3 +9,8 @@ output "bedrock_logs_bucket_arn" {
 output "bedrock_logs_kms_key_arn" {
   value = var.create_kms_key ? aws_kms_key.bedrock_logs[0].arn : null
 }
+
+output "dashboard_name" {
+  description = "CloudWatch dashboard name (null if create_dashboard = false)."
+  value       = var.create_dashboard ? aws_cloudwatch_dashboard.bedrock[0].dashboard_name : null
+}
