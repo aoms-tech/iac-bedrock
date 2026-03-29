@@ -123,3 +123,9 @@ variable "manage_logging_config" {
   type        = bool
   default     = true
 }
+
+variable "manage_log_group" {
+  description = "Controls whether this stack creates the CloudWatch log group. Set false in secondary stacks sharing the same account/region as a primary stack."
+  type        = bool
+  default     = true
+}

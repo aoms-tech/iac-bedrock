@@ -24,6 +24,7 @@ module "bedrock" {
   log_group_name         = local.bedrock_log_group
   log_key_prefix         = "model-invocations"
   manage_logging_config  = var.manage_logging_config
+  manage_log_group       = var.manage_log_group
 
   enable_guardrail = var.enable_guardrail
 

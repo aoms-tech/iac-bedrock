@@ -1,7 +1,13 @@
 resource "aws_cloudwatch_log_group" "bedrock_invocations" {
+  count             = var.manage_log_group ? 1 : 0
   name              = var.log_group_name
   retention_in_days = var.cloudwatch_log_retention_days
   kms_key_id        = var.cloudwatch_kms_key_arn
+}
+
+locals {
+  # Compute the log group ARN whether or not this stack owns the resource.
+  log_group_arn = var.manage_log_group ? aws_cloudwatch_log_group.bedrock_invocations[0].arn : "arn:${data.aws_partition.current.partition}:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:${var.log_group_name}"
 }
 
 data "aws_iam_policy_document" "bedrock_logging_trust" {
@@ -38,7 +44,7 @@ data "aws_iam_policy_document" "bedrock_logging_permissions" {
       "logs:PutLogEvents",
     ]
     resources = [
-      "${aws_cloudwatch_log_group.bedrock_invocations.arn}:*"
+      "${local.log_group_arn}:*"
     ]
   }
 
@@ -74,7 +80,7 @@ resource "aws_bedrock_model_invocation_logging_configuration" "main" {
     video_data_delivery_enabled     = true
 
     cloudwatch_config {
-      log_group_name = aws_cloudwatch_log_group.bedrock_invocations.name
+      log_group_name = var.log_group_name
       role_arn       = aws_iam_role.bedrock_logging.arn
     }
 
@@ -86,6 +92,5 @@ resource "aws_bedrock_model_invocation_logging_configuration" "main" {
 
   depends_on = [
     aws_iam_role_policy.bedrock_logging,
-    aws_cloudwatch_log_group.bedrock_invocations,
   ]
 }

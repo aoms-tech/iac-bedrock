@@ -7,7 +7,7 @@ output "bedrock_logging_role_arn" {
 }
 
 output "cloudwatch_log_group_name" {
-  value = aws_cloudwatch_log_group.bedrock_invocations.name
+  value = var.log_group_name
 }
 
 output "guardrail_id" {

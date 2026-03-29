@@ -12,11 +12,11 @@ team_role_trust_principals = [
   # "arn:aws:iam::<ACCOUNT_ID>:role/AWSReservedSSO_Administrator_<HASH>",
 ]
 
-# Prod owns the account-level Bedrock logging singleton (one per account/region).
-# All Bedrock invocations in this account log to /aws/bedrock/model-invocations
-# regardless of which environment made the call.
-# Dev must set manage_logging_config = false.
-manage_logging_config = true
+# In a single-account setup, dev owns the shared logging resources
+# (CloudWatch log group + Bedrock logging singleton). Set both to false here
+# so prod doesn't conflict. All invocations log to /aws/bedrock/model-invocations.
+manage_logging_config = false
+manage_log_group      = false
 
 # Guardrail recommended in production.
 # enable_guardrail = true

@@ -52,3 +52,9 @@ variable "manage_logging_config" {
   type        = bool
   default     = true
 }
+
+variable "manage_log_group" {
+  description = "Set false on secondary stacks sharing the same account/region to skip creating the CloudWatch log group (it already exists, owned by the primary stack)."
+  type        = bool
+  default     = true
+}
