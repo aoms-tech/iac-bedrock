@@ -27,6 +27,11 @@ project_name = "brickeye-bedrock"
 #   "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-3-5-haiku-20241022-v1:0",
 # ]
 
+# Same-account deployments: prod owns the Bedrock logging singleton.
+# Set this to false once prod has been applied, so dev doesn't overwrite
+# the account-level logging config.
+# manage_logging_config = false
+
 tags = {
   Team = "platform"
 }

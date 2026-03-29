@@ -57,5 +57,5 @@ module "networking" {
 
 locals {
   name_prefix       = "${var.project_name}-${var.environment}"
-  bedrock_log_group = "/aws/bedrock/${var.environment}/model-invocations"
+  bedrock_log_group = "/aws/bedrock/model-invocations"
 }
