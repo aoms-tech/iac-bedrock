@@ -11,9 +11,9 @@ variable "project_name" {
 }
 
 variable "environment" {
-  description = "Environment name (e.g. dev, prod)."
+  description = "Environment name."
   type        = string
-  default     = "dev"
+  default     = "prod"
 }
 
 variable "tags" {
@@ -118,20 +118,8 @@ variable "allow_account_root_trust_principal" {
   }
 }
 
-variable "manage_logging_config" {
-  description = "Controls whether this stack owns aws_bedrock_model_invocation_logging_configuration. Set false in secondary stacks sharing the same account/region as a primary stack."
-  type        = bool
-  default     = true
-}
-
-variable "manage_log_group" {
-  description = "Controls whether this stack creates the CloudWatch log group. Set false in secondary stacks sharing the same account/region as a primary stack."
-  type        = bool
-  default     = true
-}
-
 variable "cursor_cross_account_assumer_role_arn" {
-  description = "Cursor AWS account role allowed to assume the prod Cursor Bedrock IAM role (ignored when environment is not prod)."
+  description = "Cursor AWS account role allowed to assume the Cursor Bedrock IAM role."
   type        = string
   default     = "arn:aws:iam::289469326074:role/roleAssumer"
 }

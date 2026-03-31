@@ -29,19 +29,19 @@ terraform fmt -check -recursive
 terraform fmt -recursive
 ```
 
-### Plan (Single Environment)
+### Plan
 ```bash
-make plan ENV=dev    # or ENV=prod
+AWS_PROFILE=bedrock-workload terraform plan -var-file=terraform.tfvars
 ```
 
-### Apply (Single Environment)
+### Apply
 ```bash
-make apply ENV=dev
+AWS_PROFILE=bedrock-workload terraform apply -var-file=terraform.tfvars
 ```
 
-### Destroy (Single Environment)
+### Destroy
 ```bash
-make destroy ENV=dev
+AWS_PROFILE=bedrock-workload terraform destroy -var-file=terraform.tfvars
 ```
 
 ### Bootstrap State Backend (Once Per Account)
@@ -135,19 +135,18 @@ set -euo pipefail  # Exit on error, undefined vars, pipe failure
 
 ---
 
-## Multi-Environment Workflow
+## Workflow
 
-**Workspaces**: Isolate `dev` and `prod` environments  
-**State Files**: Stored in single S3 bucket with workspace paths  
+**Workspace**: Single `prod` workspace
+**State File**: Stored in S3 at `env:/prod/bedrock/terraform.tfstate`
 
 ```bash
-# Always use make for env-aware operations
-make plan ENV=dev
-make apply ENV=dev
-make destroy ENV=dev
+AWS_PROFILE=bedrock-workload terraform workspace select prod
+AWS_PROFILE=bedrock-workload terraform plan -var-file=terraform.tfvars
+AWS_PROFILE=bedrock-workload terraform apply -var-file=terraform.tfvars
 ```
 
-**Key Variables Per Environment**: Defined in `environments/{env}/terraform.tfvars`
+**Variables**: Defined in `terraform.tfvars` (gitignored; use `terraform.tfvars.example` as template)
 
 ---
 
@@ -164,18 +163,17 @@ make destroy ENV=dev
 
 - [ ] Run `terraform fmt -recursive` on all `.tf` files
 - [ ] Run `terraform validate` — no errors
-- [ ] Review `terraform plan ENV=dev` output for unintended changes
-- [ ] Update `.tfvars.example` if variables change
+- [ ] Review `terraform plan` output for unintended changes
+- [ ] Update `terraform.tfvars.example` if variables change
 - [ ] Document sensitive outputs or security implications in comments
-- [ ] Confirm secrets stay out of git: default is ignore `*.tfvars`, with exceptions for `environments/dev/terraform.tfvars` and `environments/prod/terraform.tfvars` (source of truth; private repo only)
+- [ ] Confirm `terraform.tfvars` stays out of git (gitignored)
 
 ---
 
 ## Common Patterns & Best Practices
 
-### Multiple Environments with Shared Infrastructure
-- **Singleton resources** (e.g., Bedrock logging config): Only manage from one workspace (`prod`)
-- **Per-env resources**: Teams, IAM roles → managed per workspace
+### Single Environment (prod)
+- All resources are managed from the `prod` workspace
 - **Reference outputs**: Use `terraform output` to pass ARNs between stacks
 
 ### Optional Features with Conditionals

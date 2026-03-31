@@ -1,13 +1,11 @@
 resource "aws_cloudwatch_log_group" "bedrock_invocations" {
-  count             = var.manage_log_group ? 1 : 0
   name              = var.log_group_name
   retention_in_days = var.cloudwatch_log_retention_days
   kms_key_id        = var.cloudwatch_kms_key_arn
 }
 
 locals {
-  # Compute the log group ARN whether or not this stack owns the resource.
-  log_group_arn = var.manage_log_group ? aws_cloudwatch_log_group.bedrock_invocations[0].arn : "arn:${data.aws_partition.current.partition}:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:${var.log_group_name}"
+  log_group_arn = aws_cloudwatch_log_group.bedrock_invocations.arn
 }
 
 data "aws_iam_policy_document" "bedrock_logging_trust" {
@@ -71,8 +69,6 @@ resource "aws_iam_role_policy" "bedrock_logging" {
 }
 
 resource "aws_bedrock_model_invocation_logging_configuration" "main" {
-  count = var.manage_logging_config ? 1 : 0
-
   logging_config {
     text_data_delivery_enabled      = true
     image_data_delivery_enabled     = true
