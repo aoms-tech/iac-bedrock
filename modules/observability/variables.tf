@@ -32,8 +32,3 @@ variable "log_group_name" {
   default     = "/aws/bedrock/model-invocations"
 }
 
-variable "create_dashboard" {
-  description = "Create a CloudWatch dashboard for Bedrock cost, usage-by-model, and usage-by-user observability."
-  type        = bool
-  default     = true
-}

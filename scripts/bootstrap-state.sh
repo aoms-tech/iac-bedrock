@@ -65,5 +65,5 @@ aws s3api put-public-access-block \
 echo ""
 echo "Bootstrap complete. Next steps:"
 echo "  1. Update backend.hcl: set bucket = \"${BUCKET_NAME}\""
-echo "  2. make init"
-echo "  3. terraform workspace new dev && terraform workspace new prod"
+echo "  2. terraform init -backend-config=backend.hcl"
+echo "  3. terraform workspace new prod"

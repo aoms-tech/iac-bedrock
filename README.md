@@ -47,7 +47,6 @@ AWS_PROFILE=bedrock-workload ./scripts/bootstrap-state.sh
 
 This creates:
 - S3 bucket `brickeye-tfstate-bedrock` with versioning, encryption, and public access blocked
-- DynamoDB table `brickeye-tfstate-locks` for state locking
 
 **After bootstrap is complete, all other engineers skip the bootstrap script and proceed directly to `terraform init`.**
 
@@ -59,50 +58,25 @@ AWS_PROFILE=bedrock-workload ./scripts/bootstrap-state.sh us-east-1 <ACCOUNT_ID>
 
 # 2. Update backend.hcl with the bucket name printed above
 
-# 3. Init once (no re-init needed when switching environments)
+# 3. Init
 AWS_PROFILE=bedrock-workload terraform init -backend-config=backend.hcl
 
-# 4. Create workspaces
-terraform workspace new dev
+# 4. Create prod workspace
 terraform workspace new prod
 
-# 5. Variables per env (committed in-repo)
-#    `environments/dev/terraform.tfvars` and `environments/prod/terraform.tfvars` are tracked.
-#    Copy from `*.tfvars.example` only if you need a local-only override (use a separate filename or git update-index --skip-worktree).
+# 5. Copy and edit variables
+cp terraform.tfvars.example terraform.tfvars
+# edit terraform.tfvars
+
+# 6. Plan and apply
+AWS_PROFILE=bedrock-workload terraform workspace select prod
+AWS_PROFILE=bedrock-workload terraform plan -var-file=terraform.tfvars
+AWS_PROFILE=bedrock-workload terraform apply -var-file=terraform.tfvars
 ```
-
-## Multi-Environment Workflow
-
-Environments are isolated using Terraform workspaces. State is stored in the same S3 bucket under separate keys:
-
-| Workspace | S3 State Key |
-|---|---|
-| dev  | `env:/dev/bedrock/terraform.tfstate`  |
-| prod | `env:/prod/bedrock/terraform.tfstate` |
-
-Use `make` to run commands — it always selects the correct workspace before plan/apply:
-
-```bash
-make plan ENV=dev
-make apply ENV=dev
-
-make plan ENV=prod
-make apply ENV=prod
-```
-
-No `terraform init` needed when switching environments.
-
-### Bedrock logging singleton (`aws_bedrock_model_invocation_logging_configuration`)
-
-Bedrock's invocation logging config is **one per AWS account per region**. In a single-account setup, all invocations log to one shared CloudWatch log group (`/aws/bedrock/model-invocations`) regardless of environment.
-
-- **prod** sets `manage_logging_config = true` — owns the singleton
-- **dev** sets `manage_logging_config = false` — does not touch it
-- Individual callers are identifiable via `identity.arn` in the log entries
 
 ## Configure Variables
 
-Defaults live in `environments/dev/terraform.tfvars` and `environments/prod/terraform.tfvars` (tracked). Use `*.tfvars.example` as a template when adding a new environment or a private fork.
+Start from `terraform.tfvars.example`.
 
 Key variables:
 
@@ -111,7 +85,7 @@ Key variables:
 - `model_invoke_resource_arns` - allowed Bedrock model/inference-profile ARNs
 - `teams` - map of team role names to create
 - `team_role_trust_principals` - principals allowed to assume team roles
-- `allow_account_root_trust_principal` - compatibility toggle; set `false` in production
+- `allow_account_root_trust_principal` - set `false` and configure `team_role_trust_principals` with SSO role ARNs
 - `enable_bedrock_private_endpoints`, `vpc_id`, `private_subnet_ids` - PrivateLink
 - `endpoint_allowed_principal_arns` - required when PrivateLink is enabled
 - `enable_guardrail` - create baseline guardrail
@@ -225,11 +199,7 @@ Notes:
 ├── variables.tf
 ├── outputs.tf
 ├── versions.tf
-├── environments/
-│   ├── dev/
-│   │   └── terraform.tfvars.example
-│   └── prod/
-│       └── terraform.tfvars.example
+├── terraform.tfvars.example
 ├── modules/
 │   ├── bedrock/
 │   ├── iam/

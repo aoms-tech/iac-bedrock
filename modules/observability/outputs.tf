@@ -11,6 +11,6 @@ output "bedrock_logs_kms_key_arn" {
 }
 
 output "dashboard_name" {
-  description = "CloudWatch dashboard name (null if create_dashboard = false)."
-  value       = var.create_dashboard ? aws_cloudwatch_dashboard.bedrock[0].dashboard_name : null
+  description = "CloudWatch dashboard name."
+  value       = aws_cloudwatch_dashboard.bedrock.dashboard_name
 }

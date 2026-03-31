@@ -5,9 +5,8 @@ module "observability" {
   aws_region       = var.aws_region
   project_name     = var.project_name
   environment      = var.environment
-  log_bucket_sse   = true
-  log_group_name   = local.bedrock_log_group
-  create_dashboard = var.environment == "prod"
+  log_bucket_sse = true
+  log_group_name = local.bedrock_log_group
 }
 
 module "bedrock" {
@@ -23,9 +22,6 @@ module "bedrock" {
   cloudwatch_kms_key_arn = module.observability.bedrock_logs_kms_key_arn
   log_group_name         = local.bedrock_log_group
   log_key_prefix         = "model-invocations"
-  manage_logging_config  = var.manage_logging_config
-  manage_log_group       = var.manage_log_group
-
   enable_guardrail = var.enable_guardrail
 
   depends_on = [
@@ -65,6 +61,5 @@ locals {
   name_prefix       = "${var.project_name}-${var.environment}"
   bedrock_log_group = "/aws/bedrock/model-invocations"
 
-  # Cursor cross-account Bedrock access: created only when environment is prod.
-  enable_cursor_bedrock_cross_account_role = var.environment == "prod"
+  enable_cursor_bedrock_cross_account_role = true
 }
