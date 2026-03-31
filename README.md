@@ -89,6 +89,9 @@ Key variables:
 - `enable_bedrock_private_endpoints`, `vpc_id`, `private_subnet_ids` - PrivateLink
 - `endpoint_allowed_principal_arns` - required when PrivateLink is enabled
 - `enable_guardrail` - create baseline guardrail
+- `cursor_cross_account_assumer_role_arn` - Cursor AWS account role ARN for cross-account Bedrock access
+- `cursor_bedrock_external_id` - optional external ID for Cursor role trust policy
+- `cursor_bedrock_role_name_suffix` - suffix for the Cursor Bedrock IAM role name
 
 ## Model Access Notes
 
@@ -124,6 +127,7 @@ After apply, useful outputs include:
 - `cloudwatch_log_group_name`
 - `team_role_arns`
 - `guardrail_id`
+- `cursor_bedrock_role_arn`
 - `vpc_endpoint_ids` (if enabled)
 
 ## Important Operational Notes
@@ -194,7 +198,6 @@ Notes:
 ├── main.tf
 ├── backend.tf
 ├── backend.hcl
-├── Makefile
 ├── providers.tf
 ├── variables.tf
 ├── outputs.tf
