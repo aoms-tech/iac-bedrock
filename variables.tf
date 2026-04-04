@@ -86,6 +86,9 @@ variable "model_invoke_resource_arns" {
     "arn:aws:bedrock:*::foundation-model/zai.glm*",
     "arn:aws:bedrock:*::foundation-model/moonshot*",
     "arn:aws:bedrock:*::foundation-model/moonshotai.*",
+    # Amazon Titan embeddings — include G1 and v1/v2 variants; console "Titan Embeddings G1 – Text" may use
+    # amazon.titan-embed-g1-text-02 while older docs use amazon.titan-embed-text-v1 (each has a distinct IAM resource ARN).
+    "arn:aws:bedrock:*::foundation-model/amazon.titan-embed-text-v1",
   ]
 }
 
@@ -135,4 +138,14 @@ variable "cursor_bedrock_role_name_suffix" {
   description = "IAM role name suffix for Cursor Bedrock access; full name is {project_name}-{environment}-{suffix}."
   type        = string
   default     = "cursor-bedrock-access"
+}
+
+variable "iam_users" {
+  description = "IAM users managed by Terraform. attach_bedrock_invoke attaches the shared Bedrock invoke policy; extra_policy_arns adds additional AWS or customer-managed policies; tags are applied as-is to the IAM user."
+  type = map(object({
+    attach_bedrock_invoke = optional(bool, true)
+    extra_policy_arns     = optional(list(string), [])
+    tags                  = optional(map(string), {})
+  }))
+  default = {}
 }

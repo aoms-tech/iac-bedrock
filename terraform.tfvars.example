@@ -32,6 +32,33 @@ cursor_bedrock_external_id = "enter-cursor-id-here"
 #   "arn:aws:bedrock:us-east-1::inference-profile/us.anthropic.claude-sonnet-4-6",
 # ]
 
+# IAM users managed by Terraform.
+# attach_bedrock_invoke = true attaches the shared Bedrock invoke policy automatically.
+# extra_policy_arns adds additional AWS or customer-managed policies.
+# tags are arbitrary key-value pairs applied to the IAM user.
+iam_users = {
+  interview-candidate = {
+    attach_bedrock_invoke = true
+    tags = {
+      "AKIAW3TLACVZ5Z4NWCNS" = "key"
+    }
+  }
+  librechat = {
+    attach_bedrock_invoke = true
+    tags = {
+      "AKIAW3TLACVZZWFDHEMH" = "librechat-local"
+      "AKIAW3TLACVZ5WPOPWMR" = "librechat-railway"
+    }
+  }
+  vitalii = {
+    attach_bedrock_invoke = true
+    extra_policy_arns = [
+      "arn:aws:iam::aws:policy/service-role/CloudWatchEventsInvocationAccess",
+      "arn:aws:iam::aws:policy/CloudWatchFullAccessV2",
+    ]
+  }
+}
+
 tags = {
   Team        = "platform"
   Environment = "prod"

@@ -48,3 +48,13 @@ variable "cursor_bedrock_role_name_suffix" {
   type        = string
   default     = "cursor-bedrock-access"
 }
+
+variable "iam_users" {
+  description = "IAM users to manage. attach_bedrock_invoke attaches the shared Bedrock invoke policy; extra_policy_arns adds additional AWS or customer-managed policies; tags are applied as-is to the IAM user."
+  type = map(object({
+    attach_bedrock_invoke = optional(bool, true)
+    extra_policy_arns     = optional(list(string), [])
+    tags                  = optional(map(string), {})
+  }))
+  default = {}
+}

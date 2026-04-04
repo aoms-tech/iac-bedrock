@@ -1,10 +1,10 @@
 module "observability" {
   source = "./modules/observability"
 
-  name_prefix      = local.name_prefix
-  aws_region       = var.aws_region
-  project_name     = var.project_name
-  environment      = var.environment
+  name_prefix    = local.name_prefix
+  aws_region     = var.aws_region
+  project_name   = var.project_name
+  environment    = var.environment
   log_bucket_sse = true
   log_group_name = local.bedrock_log_group
 }
@@ -22,7 +22,7 @@ module "bedrock" {
   cloudwatch_kms_key_arn = module.observability.bedrock_logs_kms_key_arn
   log_group_name         = local.bedrock_log_group
   log_key_prefix         = "model-invocations"
-  enable_guardrail = var.enable_guardrail
+  enable_guardrail       = var.enable_guardrail
 
   depends_on = [
     module.observability
@@ -37,6 +37,7 @@ module "iam" {
   teams                      = var.teams
   team_role_trust_principals = var.team_role_trust_principals
   allow_account_root_trust   = var.allow_account_root_trust_principal
+  iam_users                  = var.iam_users
 
   enable_cursor_bedrock_cross_account_role = local.enable_cursor_bedrock_cross_account_role
   cursor_cross_account_assumer_role_arn    = var.cursor_cross_account_assumer_role_arn
