@@ -29,21 +29,36 @@ module "bedrock" {
   ]
 }
 
+module "litellm" {
+  count  = var.enable_litellm_config_bucket ? 1 : 0
+  source = "./modules/litellm"
+
+  name_prefix                = local.name_prefix
+  litellm_config_bucket_name = var.litellm_config_bucket_name
+  tags                       = var.tags
+
+  # Ensure log bucket / KMS exist first (shared account bootstrap ordering).
+  depends_on = [module.observability]
+}
+
 module "iam" {
   source = "./modules/iam"
 
-  name_prefix                = local.name_prefix
-  bedrock_invoke_policy_arn  = module.bedrock.bedrock_invoke_policy_arn
-  teams                      = var.teams
-  team_role_trust_principals = var.team_role_trust_principals
-  allow_account_root_trust   = var.allow_account_root_trust_principal
-  iam_users                  = var.iam_users
+  name_prefix                    = local.name_prefix
+  bedrock_invoke_policy_arn      = module.bedrock.bedrock_invoke_policy_arn
+  litellm_s3_policy_arn          = var.enable_litellm_config_bucket ? module.litellm[0].config_bucket_policy_arn : null
+  litellm_s3_attachments_enabled = var.enable_litellm_config_bucket
+  teams                          = var.teams
+  team_role_trust_principals     = var.team_role_trust_principals
+  allow_account_root_trust       = var.allow_account_root_trust_principal
+  iam_users                      = var.iam_users
 
   enable_cursor_bedrock_cross_account_role = local.enable_cursor_bedrock_cross_account_role
   cursor_cross_account_assumer_role_arn    = var.cursor_cross_account_assumer_role_arn
   cursor_bedrock_external_id               = var.cursor_bedrock_external_id
   cursor_bedrock_role_name_suffix          = var.cursor_bedrock_role_name_suffix
 
+  # Ordering: implicit dependency on module.litellm when enable_litellm_config_bucket (litellm_s3_policy_arn).
   depends_on = [module.bedrock]
 }
 

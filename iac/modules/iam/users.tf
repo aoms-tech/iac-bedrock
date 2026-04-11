@@ -37,3 +37,14 @@ resource "aws_iam_user_policy_attachment" "extra" {
   user       = aws_iam_user.users[each.value.user].name
   policy_arn = each.value.policy_arn
 }
+
+resource "aws_iam_user_policy_attachment" "litellm_s3" {
+  # Gate with a plan-time bool, not litellm_s3_policy_arn == null (ARN is unknown until apply).
+  for_each = var.litellm_s3_attachments_enabled ? {
+    for k, v in var.iam_users : k => v
+    if try(v.attach_litellm_s3, false)
+  } : {}
+
+  user       = aws_iam_user.users[each.key].name
+  policy_arn = var.litellm_s3_policy_arn
+}

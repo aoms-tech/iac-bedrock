@@ -22,6 +22,16 @@ variable "tags" {
   default     = {}
 }
 
+# Tag keys whose names start with any of these prefixes are ignored by Terraform for *all* resources
+# in this root module (AWS provider ignore_tags). Default matches typical IAM access key id prefixes
+# when teams record which key belongs to whom as tag *keys*. Add more prefixes for other self-managed
+# naming schemes, or set to [] to disable (no ignore_tags block).
+variable "ignore_tag_key_prefixes" {
+  description = "Tag key prefixes Terraform should not reconcile (provider ignore_tags.key_prefixes)."
+  type        = list(string)
+  default     = ["AKIA", "ASIA"]
+}
+
 variable "enable_bedrock_private_endpoints" {
   description = "Create interface VPC endpoints for bedrock and bedrock-runtime."
   type        = bool
@@ -89,6 +99,10 @@ variable "model_invoke_resource_arns" {
     # Amazon Titan embeddings — include G1 and v1/v2 variants; console "Titan Embeddings G1 – Text" may use
     # amazon.titan-embed-g1-text-02 while older docs use amazon.titan-embed-text-v1 (each has a distinct IAM resource ARN).
     "arn:aws:bedrock:*::foundation-model/amazon.titan-embed-text-v1",
+    # LiteLLM / open-weight on Bedrock (foundation-model ARNs; adjust per region/catalog).
+    "arn:aws:bedrock:*::foundation-model/meta.llama3-70b-instruct-v1:0",
+    "arn:aws:bedrock:*::foundation-model/mistral.mistral-large-2402-v1:0",
+    "arn:aws:bedrock:*::foundation-model/amazon.nova-pro-v1:0",
   ]
 }
 
@@ -140,12 +154,34 @@ variable "cursor_bedrock_role_name_suffix" {
   default     = "cursor-bedrock-access"
 }
 
+variable "enable_litellm_config_bucket" {
+  description = "Create S3 bucket + IAM policy for LiteLLM proxy config.yaml (Railway or other hosts)."
+  type        = bool
+  default     = false
+}
+
+variable "litellm_config_bucket_name" {
+  description = "Override S3 bucket name for LiteLLM config. If null, Terraform uses {project}-{env}-litellm-config-{account_id}."
+  type        = string
+  default     = null
+  nullable    = true
+}
+
 variable "iam_users" {
-  description = "IAM users managed by Terraform. attach_bedrock_invoke attaches the shared Bedrock invoke policy; extra_policy_arns adds additional AWS or customer-managed policies; tags are applied as-is to the IAM user."
+  description = "IAM users managed by Terraform. attach_bedrock_invoke attaches the shared Bedrock invoke policy; attach_litellm_s3 attaches the LiteLLM config bucket policy when enable_litellm_config_bucket is true; extra_policy_arns adds additional AWS or customer-managed policies; tags are applied as-is to the IAM user."
   type = map(object({
     attach_bedrock_invoke = optional(bool, true)
+    attach_litellm_s3     = optional(bool, false)
     extra_policy_arns     = optional(list(string), [])
     tags                  = optional(map(string), {})
   }))
   default = {}
+
+  validation {
+    condition = (
+      var.enable_litellm_config_bucket ||
+      !contains([for u, c in var.iam_users : try(c.attach_litellm_s3, false)], true)
+    )
+    error_message = "Set enable_litellm_config_bucket = true when any iam_users entry has attach_litellm_s3 = true."
+  }
 }

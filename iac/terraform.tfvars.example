@@ -4,11 +4,12 @@ aws_region   = "us-east-1"
 environment  = "prod"
 project_name = "brickeye-bedrock"
 
-# REQUIRED: disable account root trust and set explicit SSO role ARNs.
-# allow_account_root_trust_principal = false
-# team_role_trust_principals = [
-#   # "arn:aws:iam::<ACCOUNT_ID>:role/AWSReservedSSO_Administrator_<HASH>",
-# ]
+# Team role trust: set false in prod and list every principal allowed to assume the team Bedrock role.
+allow_account_root_trust_principal = false
+team_role_trust_principals = [
+  "arn:aws:iam::<ACCOUNT_ID>:role/OrganizationAccountAccessRole",
+   # "arn:aws:iam::<ACCOUNT_ID>:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_YourPermissionSet_HASH",
+ ]
 
 # Guardrail recommended in production.
 enable_guardrail = true
@@ -27,28 +28,27 @@ enable_guardrail = true
 cursor_bedrock_external_id = "enter-cursor-id-here"
 
 
-# Optional: constrain allowed models to exactly what prod uses.
+# LiteLLM proxy (Railway): S3 bucket for config.yaml + optional IAM user with Bedrock + S3.
+# enable_litellm_config_bucket = true
+# S3 bucket names are global; use e.g. "<project>-<env>-litellm-config-<ACCOUNT_ID>" not a generic name like "litellm-config".
+# litellm_config_bucket_name   = "myorg-bedrock-prod-litellm-config-123456789012"
+#
+# Optional: constrain allowed models to exactly what prod uses (must cover LiteLLM model IDs).
 # model_invoke_resource_arns = [
 #   "arn:aws:bedrock:us-east-1::inference-profile/us.anthropic.claude-sonnet-4-6",
 # ]
 
 # IAM users managed by Terraform.
 # attach_bedrock_invoke = true attaches the shared Bedrock invoke policy automatically.
+# attach_litellm_s3 = true attaches the LiteLLM config bucket policy (requires enable_litellm_config_bucket).
 # extra_policy_arns adds additional AWS or customer-managed policies.
 # tags are arbitrary key-value pairs applied to the IAM user.
 iam_users = {
   interview-candidate = {
     attach_bedrock_invoke = true
-    tags = {
-      "AKIAW3TLACVZ5Z4NWCNS" = "key"
-    }
   }
   librechat = {
     attach_bedrock_invoke = true
-    tags = {
-      "AKIAW3TLACVZZWFDHEMH" = "librechat-local"
-      "AKIAW3TLACVZ5WPOPWMR" = "librechat-railway"
-    }
   }
   vitalii = {
     attach_bedrock_invoke = true
@@ -57,9 +57,18 @@ iam_users = {
       "arn:aws:iam::aws:policy/CloudWatchFullAccessV2",
     ]
   }
+  # Example: dedicated user for LiteLLM on Railway (create access key outside Terraform).
+  # brickeye-litellm = {
+  #   attach_bedrock_invoke = true
+  #   attach_litellm_s3     = true
+  #   tags = { Purpose = "litellm-railway" }
+  # }
 }
 
 tags = {
   Team        = "platform"
   Environment = "prod"
 }
+
+# Optional: tag keys starting with these prefixes are ignored (e.g. AKIA… as tag key). Default is ["AKIA","ASIA"]. Set [] to disable.
+# ignore_tag_key_prefixes = ["AKIA", "ASIA", "myorg-"]

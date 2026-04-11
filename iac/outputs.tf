@@ -48,3 +48,18 @@ output "cloudwatch_dashboard_name" {
   description = "CloudWatch dashboard name for Bedrock observability (cost trend, usage by model, usage by user)."
   value       = module.observability.dashboard_name
 }
+
+output "litellm_config_bucket_name" {
+  description = "S3 bucket for LiteLLM config.yaml when enable_litellm_config_bucket is true."
+  value       = try(module.litellm[0].config_bucket_id, null)
+}
+
+output "litellm_config_bucket_arn" {
+  description = "S3 bucket ARN for LiteLLM config when enable_litellm_config_bucket is true."
+  value       = try(module.litellm[0].config_bucket_arn, null)
+}
+
+output "litellm_config_s3_policy_arn" {
+  description = "IAM policy ARN for S3 config access when enable_litellm_config_bucket is true."
+  value       = try(module.litellm[0].config_bucket_policy_arn, null)
+}
