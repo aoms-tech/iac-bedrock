@@ -1,0 +1,119 @@
+# LiteLLM proxy config — upload to the Terraform-created S3 bucket as config.yaml
+# Syntax references: https://docs.litellm.ai/docs/proxy/configs
+# Env interpolation: os.environ/VAR (see LiteLLM Bedrock + proxy docs).
+# Align model IDs with iac/variables.tf → model_invoke_resource_arns before production.
+# Wildcards there cover minimax.*, zai.glm*, moonshot*, moonshotai.* (add matching bedrock/<id> rows below).
+
+model_list:
+  - model_name: claude-sonnet-4-6
+    litellm_params:
+      model: bedrock/us.anthropic.claude-sonnet-4-6
+      aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+      aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+      aws_region_name: os.environ/AWS_REGION_NAME
+
+  - model_name: claude-haiku-4-5
+    litellm_params:
+      model: bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0
+      aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+      aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+      aws_region_name: os.environ/AWS_REGION_NAME
+
+  # Alias: Claude Code / clients often request the dated Anthropic model id.
+  - model_name: claude-haiku-4-5-20251001
+    litellm_params:
+      model: bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0
+      aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+      aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+      aws_region_name: os.environ/AWS_REGION_NAME
+
+  - model_name: llama-3-70b
+    litellm_params:
+      model: bedrock/meta.llama3-70b-instruct-v1:0
+      aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+      aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+      aws_region_name: os.environ/AWS_REGION_NAME
+
+  - model_name: mistral-large
+    litellm_params:
+      model: bedrock/mistral.mistral-large-2402-v1:0
+      aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+      aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+      aws_region_name: os.environ/AWS_REGION_NAME
+
+  - model_name: amazon-nova-pro
+    litellm_params:
+      model: bedrock/amazon.nova-pro-v1:0
+      aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+      aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+      aws_region_name: os.environ/AWS_REGION_NAME
+
+  - model_name: claude-opus-4-6
+    litellm_params:
+      model: bedrock/us.anthropic.claude-opus-4-6-v1
+      aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+      aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+      aws_region_name: os.environ/AWS_REGION_NAME
+
+  - model_name: deepseek-r1
+    litellm_params:
+      model: bedrock/us.deepseek.r1-v1:0
+      aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+      aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+      aws_region_name: os.environ/AWS_REGION_NAME
+
+  - model_name: zai-glm-4-7
+    litellm_params:
+      model: bedrock/zai.glm-4.7
+      aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+      aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+      aws_region_name: os.environ/AWS_REGION_NAME
+
+  - model_name: zai-glm-5
+    litellm_params:
+      model: bedrock/zai.glm-5
+      aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+      aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+      aws_region_name: os.environ/AWS_REGION_NAME
+
+  - model_name: kimi-k2-5
+    litellm_params:
+      model: bedrock/moonshotai.kimi-k2.5
+      aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+      aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+      aws_region_name: os.environ/AWS_REGION_NAME
+
+  - model_name: minimax-m2-5
+    litellm_params:
+      model: bedrock/minimax.minimax-m2.5
+      aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+      aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+      aws_region_name: os.environ/AWS_REGION_NAME
+
+litellm_settings:
+  cache: true
+  cache_params:
+    type: redis
+    # Do not set `url` here — it is passed to redis.Redis() and breaks (TypeError: unexpected keyword 'url').
+    # Set REDIS_URL (or REDIS_HOST/REDIS_PORT/REDIS_PASSWORD) in Railway; LiteLLM reads it from the environment.
+    # See https://docs.litellm.ai/docs/proxy/caching
+    ttl: 3600
+  turn_off_message_logging: true
+  default_fallbacks:
+    - claude-haiku-4-5
+  context_window_fallbacks:
+    - claude-sonnet-4-6:
+        - claude-haiku-4-5
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/DATABASE_URL
+  disable_spend_logs: false
+  background_health_checks: true
+  health_check_interval: 300
+
+router_settings:
+  routing_strategy: usage-based-routing
+  enable_pre_call_checks: true
+  allowed_fails: 3
+  cooldown_time: 60
