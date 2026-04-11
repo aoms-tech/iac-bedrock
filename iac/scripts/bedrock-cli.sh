@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Common AWS CLI commands for Bedrock (read-only / inspection).
 # Requires: aws CLI v2, credentials configured for the target account.
-# Usage: AWS_REGION=us-east-1 ./scripts/bedrock-cli.sh list-models
+# Usage (from iac/): AWS_REGION=us-east-1 ./scripts/bedrock-cli.sh list-models
 
 set -euo pipefail
 

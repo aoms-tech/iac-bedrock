@@ -1,5 +1,5 @@
 #!/bin/bash
-# scripts/audit-iam-accounts.sh
+# iac/scripts/audit-iam-accounts.sh
 # Classify IAM users as HUMAN or BOT, identify risk of touching each
 
 set -e

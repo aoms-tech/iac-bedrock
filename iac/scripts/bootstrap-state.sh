@@ -4,7 +4,7 @@
 # Locking uses S3 native lock files (use_lockfile = true) — no DynamoDB needed.
 #
 # Usage:
-#   AWS_PROFILE=bedrock-workload ./scripts/bootstrap-state.sh <region> <account_id>
+#   (from iac/) AWS_PROFILE=bedrock-workload ./scripts/bootstrap-state.sh <region> <account_id>
 #
 # Arguments:
 #   $1  region      (e.g. us-east-1)
