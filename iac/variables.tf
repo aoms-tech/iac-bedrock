@@ -91,6 +91,7 @@ variable "model_invoke_resource_arns" {
     # DeepSeek
     "arn:aws:bedrock:*:*:inference-profile/us.deepseek.r1-v1:0",
     "arn:aws:bedrock:*::foundation-model/deepseek.r1-v1:0",
+    "arn:aws:bedrock:*::foundation-model/deepseek.v3.2",
     # MiniMax, Z AI GLM, Moonshot Kimi (foundation-model IDs from list-foundation-models)
     "arn:aws:bedrock:*::foundation-model/minimax.*",
     "arn:aws:bedrock:*::foundation-model/zai.glm*",
@@ -103,6 +104,17 @@ variable "model_invoke_resource_arns" {
     "arn:aws:bedrock:*::foundation-model/meta.llama3-70b-instruct-v1:0",
     "arn:aws:bedrock:*::foundation-model/mistral.mistral-large-2402-v1:0",
     "arn:aws:bedrock:*::foundation-model/amazon.nova-pro-v1:0",
+    # Qwen 3 (Tier 2): coder-next, coder-30b, next-80b, etc.
+    "arn:aws:bedrock:*::foundation-model/qwen.*",
+    # Meta Llama 3.3 70B (Tier 2)
+    "arn:aws:bedrock:*::foundation-model/meta.llama3-3-70b-instruct-v1:0",
+    "arn:aws:bedrock:*:*:inference-profile/us.meta.llama3-3-70b-instruct-v1:0",
+    # Mistral Large 3 & Devstral (Tier 2)
+    "arn:aws:bedrock:*::foundation-model/mistral.mistral-large-3-675b-instruct",
+    "arn:aws:bedrock:*::foundation-model/mistral.devstral-2-123b",
+    # OpenAI GPT-OSS on Bedrock (Tier 2)
+    "arn:aws:bedrock:*::foundation-model/openai.gpt-oss-120b-1:0",
+    "arn:aws:bedrock:*::foundation-model/openai.gpt-oss-20b-1:0",
   ]
 }
 

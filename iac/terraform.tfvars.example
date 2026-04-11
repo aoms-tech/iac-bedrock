@@ -33,7 +33,9 @@ cursor_bedrock_external_id = "enter-cursor-id-here"
 # S3 bucket names are global; use e.g. "<project>-<env>-litellm-config-<ACCOUNT_ID>" not a generic name like "litellm-config".
 # litellm_config_bucket_name   = "myorg-bedrock-prod-litellm-config-123456789012"
 #
-# Optional: constrain allowed models to exactly what prod uses (must cover LiteLLM model IDs).
+# Optional: override allowed models (must cover every LiteLLM bedrock/ id in apps/litellm/config/config.yaml).
+# Defaults in variables.tf include Tier 1–2 catalog (Claude 4.x, DeepSeek R1 + v3.2, Qwen.*, Llama 3.3 70B,
+# Mistral Large 3 / Devstral, GPT-OSS, MiniMax / GLM / Kimi wildcards, Llama 3 70B, Mistral 2402, Nova Pro, Titan embed).
 # model_invoke_resource_arns = [
 #   "arn:aws:bedrock:us-east-1::inference-profile/us.anthropic.claude-sonnet-4-6",
 # ]

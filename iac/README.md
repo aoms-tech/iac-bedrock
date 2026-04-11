@@ -97,6 +97,7 @@ Key variables:
 
 - IAM restricts `InvokeModel*` to `model_invoke_resource_arns`.
 - Every `bedrock/...` model ID in the LiteLLM config must have a matching ARN in Terraform (foundation model and/or inference profile, depending on how you call Bedrock).
+- After you change [`../apps/litellm/config/config.yaml`](../apps/litellm/config/config.yaml), use [`../apps/litellm/scripts/push-config.sh`](../apps/litellm/scripts/push-config.sh) to upload to the Terraform S3 bucket and restart the Railway service (see [`../apps/litellm/README.md`](../apps/litellm/README.md)).
 - Verify models in-region:
 
 ```bash
