@@ -1,4 +1,12 @@
 .terraform/
+iac/.terraform/
+*.tfplan*
+**/tfplan.bin
+
+# Railway / local env (apps) — ignore secrets, keep *.example committed
+apps/**/.env
+!apps/**/*.example
+
 *.tfstate
 *.tfstate.*
 *.tfvars
