@@ -168,12 +168,15 @@ litellm_settings:
     # Set REDIS_URL (or REDIS_HOST/REDIS_PORT/REDIS_PASSWORD) in Railway; LiteLLM reads it from the environment.
     # See https://docs.litellm.ai/docs/proxy/caching
     ttl: 3600
-  turn_off_message_logging: true
+  turn_off_message_logging: false
   default_fallbacks:
     - claude-haiku-4-5
   context_window_fallbacks:
     - claude-sonnet-4-6:
         - claude-haiku-4-5
+  max_end_user_budget_id: "default-openwebui-users"
+  extra_spend_tag_headers:
+    - "X-OpenWebUI-User-Name"
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY
@@ -182,6 +185,11 @@ general_settings:
   background_health_checks: true
   health_check_interval: 300
   store_model_in_db: true
+  user_header_mappings:
+    - header_name: X-OpenWebUI-User-Email
+      litellm_user_role: customer
+    - header_name: X-OpenWebUI-User-Id
+      litellm_user_role: internal_user
 
 router_settings:
   routing_strategy: usage-based-routing
