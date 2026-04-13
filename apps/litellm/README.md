@@ -25,6 +25,10 @@ Record your real template URL (Brickeye or community) in `scripts/deploy.sh` as 
 RAILWAY_TEMPLATE_URL='https://railway.app/template/your-id' ./scripts/deploy.sh print-template
 ```
 
+## Agent skills (Claude / Cursor)
+
+LiteLLM proxy operations skills (`add-model`, `view-usage`, etc.) live at the **repository root** in [`.claude/skills/`](../../.claude/skills/) (from [litellm-skills](https://github.com/BerriAI/litellm-skills)), which **Claude Code** loads automatically for this project. Upstream `README`, license, and `install.sh` are under [`.claude/skills/litellm-upstream/`](../../.claude/skills/litellm-upstream/). For a global copy, symlink that tree into `~/.claude/skills` or run the upstream installer.
+
 ## Operations
 
 ```bash
