@@ -1,0 +1,76 @@
+# Copy to terraform.tfvars (gitignored) and fill in real values before applying.
+
+aws_region   = "us-east-1"
+environment  = "prod"
+project_name = "brickeye-bedrock"
+
+# Team role trust: set false in prod and list every principal allowed to assume the team Bedrock role.
+allow_account_root_trust_principal = false
+team_role_trust_principals = [
+  "arn:aws:iam::<ACCOUNT_ID>:role/OrganizationAccountAccessRole",
+   # "arn:aws:iam::<ACCOUNT_ID>:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_YourPermissionSet_HASH",
+ ]
+
+# Guardrail recommended in production.
+enable_guardrail = true
+
+# PrivateLink strongly recommended in production.
+# enable_bedrock_private_endpoints = true
+# vpc_id             = "vpc-xxxxxxxx"
+# private_subnet_ids = ["subnet-aaa", "subnet-bbb"]
+# endpoint_allowed_principal_arns = [
+#   "arn:aws:iam::<ACCOUNT_ID>:role/AWSReservedSSO_Administrator_<HASH>",
+# ]
+
+# Cursor cross-account Bedrock role is created automatically when environment = "prod".
+# Trusts arn:aws:iam::289469326074:role/roleAssumer by default. After Cursor validates setup,
+# set the external ID they provide (confused-deputy protection):
+cursor_bedrock_external_id = "enter-cursor-id-here"
+
+
+# LiteLLM proxy (Railway): S3 bucket for config.yaml + optional IAM user with Bedrock + S3.
+# enable_litellm_config_bucket = true
+# S3 bucket names are global; use e.g. "<project>-<env>-litellm-config-<ACCOUNT_ID>" not a generic name like "litellm-config".
+# litellm_config_bucket_name   = "myorg-bedrock-prod-litellm-config-123456789012"
+#
+# Optional: override allowed models (must cover every LiteLLM bedrock/ id in apps/litellm/config/config.yaml).
+# Defaults in variables.tf include Tier 1–2 catalog (Claude 4.x, DeepSeek R1 + v3.2, Qwen.*, Llama 3.3 70B,
+# Mistral Large 3 / Devstral, GPT-OSS, MiniMax / GLM / Kimi wildcards, Llama 3 70B, Mistral 2402, Nova Pro, Titan embed).
+# model_invoke_resource_arns = [
+#   "arn:aws:bedrock:us-east-1::inference-profile/us.anthropic.claude-sonnet-4-6",
+# ]
+
+# IAM users managed by Terraform.
+# attach_bedrock_invoke = true attaches the shared Bedrock invoke policy automatically.
+# attach_litellm_s3 = true attaches the LiteLLM config bucket policy (requires enable_litellm_config_bucket).
+# extra_policy_arns adds additional AWS or customer-managed policies.
+# tags are arbitrary key-value pairs applied to the IAM user.
+iam_users = {
+  interview-candidate = {
+    attach_bedrock_invoke = true
+  }
+  librechat = {
+    attach_bedrock_invoke = true
+  }
+  vitalii = {
+    attach_bedrock_invoke = true
+    extra_policy_arns = [
+      "arn:aws:iam::aws:policy/service-role/CloudWatchEventsInvocationAccess",
+      "arn:aws:iam::aws:policy/CloudWatchFullAccessV2",
+    ]
+  }
+  # Example: dedicated user for LiteLLM on Railway (create access key outside Terraform).
+  # brickeye-litellm = {
+  #   attach_bedrock_invoke = true
+  #   attach_litellm_s3     = true
+  #   tags = { Purpose = "litellm-railway" }
+  # }
+}
+
+tags = {
+  Team        = "platform"
+  Environment = "prod"
+}
+
+# Optional: tag keys starting with these prefixes are ignored (e.g. AKIA… as tag key). Default is ["AKIA","ASIA"]. Set [] to disable.
+# ignore_tag_key_prefixes = ["AKIA", "ASIA", "myorg-"]

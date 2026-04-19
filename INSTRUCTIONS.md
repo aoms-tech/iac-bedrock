@@ -6,7 +6,7 @@ This guide explains how to point **Claude Code**, **Cursor**, and **OpenCode** a
 
 - Inference runs in **your AWS account** (billing and data handling per AWS Bedrock).
 - Access is via **AWS credentials** (or **IAM role assumption** for Cursor’s dashboard flow).
-- Model allow-lists are enforced with IAM (see repo Terraform: `modules/bedrock/model_access.tf`).
+- Model allow-lists are enforced with IAM (see repo Terraform: `iac/modules/bedrock/model_access.tf`).
 
 **Before you start**
 
@@ -20,7 +20,7 @@ Fill these in for your environment:
 
 | Placeholder | Example | Where to get it |
 | --- | --- | --- |
-| `AWS_REGION` | `us-east-1` | `terraform.tfvars` / Platform |
+| `AWS_REGION` | `us-east-1` | `iac/terraform.tfvars` / Platform |
 | `AWS_PROFILE` | `bedrock-workload` | Your `~/.aws/config` profile for this account |
 | Team invoke role (optional) | `arn:aws:iam::<account>:role/<prefix>-bedrock-platform-invoke` | Terraform output `team_role_arns` |
 
@@ -243,6 +243,7 @@ aws bedrock list-foundation-models --region "$AWS_REGION" --output table
 From this repo (optional):
 
 ```bash
+cd iac
 ./scripts/bedrock-cli.sh list-models
 ./scripts/bedrock-cli.sh get-logging
 ```

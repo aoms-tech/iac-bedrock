@@ -1,0 +1,37 @@
+version: 1.1.4
+
+# ── Endpoints ────────────────────────────────────────────────
+endpoints:
+  custom:
+    - name: "Brickeye AI"
+      # References the env var LITELLM_KEY set in Railway
+      apiKey: "${LITELLM_KEY}"
+      # Public URL of your LiteLLM Railway deployment
+      baseURL: "https://litellm-production-00d5.up.railway.app/v1"
+      models:
+        # fetch: true pulls the model list dynamically from LiteLLM /v1/models
+        # so whatever you define in LiteLLM config.yaml appears here automatically
+        default: ["claude-sonnet-4"]
+        fetch: true
+      titleConvo: true
+      titleModel: "claude-haiku"
+      summarize: false
+      summaryModel: "claude-haiku"
+      modelDisplayLabel: "Brickeye AI"
+      # Drop params LiteLLM doesn't need
+      dropParams: ["stop", "user", "frequency_penalty", "presence_penalty"]
+
+# ── Interface ─────────────────────────────────────────────────
+interface:
+  # Hide endpoints you're not using to keep the UI clean
+  endpointsMenu: true
+  modelSelect: true
+  parameters: true
+  sidePanel: true
+  presets: true
+
+# ── Registration & Auth ───────────────────────────────────────
+registration:
+  socialLogins: ["google"]   # if you want Google SSO (via WorkOS)
+  # allowedDomains:
+  #   - "brickeye.com"       # uncomment to restrict to your domain

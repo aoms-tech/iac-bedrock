@@ -3,7 +3,9 @@
 **Project**: Terraform-based AWS Bedrock baseline infrastructure for Brickeye  
 **Language**: HCL (Terraform), Bash  
 **Terraform Version**: >= 1.5.0  
-**AWS Provider Version**: >= 5.100.0
+**AWS Provider Version**: >= 5.100.0  
+
+**Terraform root module** lives in **`iac/`**. Run `terraform` / `terraform fmt` / `terraform validate` with **`iac` as the current working directory** unless noted otherwise.
 
 ---
 
@@ -12,54 +14,60 @@
 ### Initialize Terraform (First Time Only)
 
 ```bash
+cd iac
 AWS_PROFILE=bedrock-workload terraform init -backend-config=backend.hcl
 ```
 
 ### Validate Terraform Syntax
 
 ```bash
-terraform validate
+cd iac && terraform validate
 ```
 
 ### Format Check (No Changes)
 
 ```bash
-terraform fmt -check -recursive
+cd iac && terraform fmt -check -recursive
 ```
 
 ### Auto-Format Terraform Files
 
 ```bash
-terraform fmt -recursive
+cd iac && terraform fmt -recursive
 ```
 
 ### Plan
 
 ```bash
+cd iac
 AWS_PROFILE=bedrock-workload terraform plan -var-file=terraform.tfvars
 ```
 
 ### Apply
 
 ```bash
+cd iac
 AWS_PROFILE=bedrock-workload terraform apply -var-file=terraform.tfvars
 ```
 
 ### Destroy
 
 ```bash
+cd iac
 AWS_PROFILE=bedrock-workload terraform destroy -var-file=terraform.tfvars
 ```
 
 ### Bootstrap State Backend (Once Per Account)
 
 ```bash
+cd iac
 AWS_PROFILE=bedrock-workload ./scripts/bootstrap-state.sh us-east-1 <ACCOUNT_ID>
 ```
 
 ### List Models (Helper Script)
 
 ```bash
+cd iac
 AWS_REGION=us-east-1 ./scripts/bedrock-cli.sh list-models
 ```
 
@@ -73,7 +81,7 @@ AWS_REGION=us-east-1 ./scripts/bedrock-cli.sh list-models
 
 - **No explicit imports** — Terraform auto-discovers `.tf` files in directory
 - **Module structure**: Each `modules/*/` contains `main.tf`, `variables.tf`, `outputs.tf`
-- **Root module**: `main.tf`, `variables.tf`, `outputs.tf`, `providers.tf`, `versions.tf` at repo root
+- **Root module**: `iac/main.tf`, `iac/variables.tf`, `iac/outputs.tf`, `iac/providers.tf`, `iac/versions.tf`
 - **Module calls**: Place in `main.tf` with clear variable assignments
 
 #### Formatting & Spacing
@@ -157,16 +165,17 @@ set -euo pipefail  # Exit on error, undefined vars, pipe failure
 
 ## Workflow
 
-**Workspace**: Single `prod` workspace
+**Workspace**: Single `prod` workspace  
 **State File**: Stored in S3 at `env:/prod/bedrock/terraform.tfstate`
 
 ```bash
+cd iac
 AWS_PROFILE=bedrock-workload terraform workspace select prod
 AWS_PROFILE=bedrock-workload terraform plan -var-file=terraform.tfvars
 AWS_PROFILE=bedrock-workload terraform apply -var-file=terraform.tfvars
 ```
 
-**Variables**: Defined in `terraform.tfvars` (gitignored; use `terraform.tfvars.example` as template)
+**Variables**: Defined in `iac/terraform.tfvars` (gitignored; use `iac/terraform.tfvars.example` as template)
 
 ---
 
@@ -184,7 +193,7 @@ AWS_PROFILE=bedrock-workload terraform apply -var-file=terraform.tfvars
 - Run `terraform fmt -recursive` on all `.tf` files
 - Run `terraform validate` — no errors
 - Review `terraform plan` output for unintended changes
-- Update `terraform.tfvars.example` if variables change
+- Update `iac/terraform.tfvars.example` if variables change
 - Document sensitive outputs or security implications in comments
 - Confirm `terraform.tfvars` stays out of git (gitignored)
 
@@ -213,7 +222,7 @@ output "vpc_endpoint_ids" {
 ### Tight IAM Scoping
 
 - Use explicit model ARNs in `bedrock:InvokeModel` policies; avoid wildcards
-- Verify available models per region with `./scripts/bedrock-cli.sh list-models`
+- Verify available models per region with `cd iac && ./scripts/bedrock-cli.sh list-models`
 - Test iam roles with `assume-role` before production rollout
 
 ---
