@@ -160,7 +160,17 @@ model_list:
       aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
       aws_region_name: os.environ/AWS_REGION_NAME
 
+  # Embeddings — InvokeModel; IAM must allow foundation-model/amazon.titan-embed-text-v1 (see iac/variables.tf).
+  - model_name: titan-embed-text-v1
+    litellm_params:
+      model: bedrock/amazon.titan-embed-text-v1
+      aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+      aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+      aws_region_name: os.environ/AWS_REGION_NAME
+
 litellm_settings:
+  # Drop params from the request body contains non supported params for AWS Bedrock
+  drop_params: true     
   cache: true
   cache_params:
     type: redis
